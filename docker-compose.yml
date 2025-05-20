@@ -1,0 +1,10 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: tops3cr3t
+    ports:
+      - "8088:8080"
+    command:
+      - start-dev
