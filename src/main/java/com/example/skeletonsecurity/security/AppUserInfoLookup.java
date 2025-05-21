@@ -26,8 +26,8 @@ import java.util.Optional;
  * cache invalidation strategies to ensure that user information remains reasonably up-to-date.
  * </p>
  *
- * @see AppUserInfo
- * @see CurrentUser
+ * @see AppUserInfo The application's user information model
+ * @see CurrentUser For accessing the currently authenticated user
  */
 public interface AppUserInfoLookup {
 

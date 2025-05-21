@@ -14,8 +14,28 @@ import java.util.Optional;
  * Utility class for retrieving the currently authenticated user from the Spring Security context.
  * <p>
  * This class provides methods to safely access user information stored in the authentication principal,
- * supporting both direct {@link AppUserInfo} principals and those implementing {@link HasAppUserInfo}.
+ * supporting principals that implement {@link AppUserPrincipal}. It serves as a bridge between
+ * Spring Security's authentication model and the application's user information model.
  * </p>
+ * <p>
+ * Usage examples:
+ * <pre>
+ * {@code
+ * // Get the current user if available
+ * Optional<AppUserInfo> currentUser = CurrentUser.get();
+ *
+ * // Get the current user, throwing an exception if not authenticated
+ * AppUserInfo user = CurrentUser.require();
+ *
+ * // Access user properties
+ * String fullName = CurrentUser.require().fullName();
+ * }
+ * </pre>
+ * </p>
+ *
+ * @see AppUserInfo The application's user information model
+ * @see AppUserPrincipal The principal interface that provides access to user information
+ * @see AppUserInfoLookup For looking up information about any user, not just the current one
  */
 public final class CurrentUser {
 
@@ -31,13 +51,18 @@ public final class CurrentUser {
      * Returns the currently authenticated user from the security context.
      * <p>
      * This method safely extracts user information from the current security context without
-     * throwing exceptions for unauthenticated requests.
+     * throwing exceptions for unauthenticated requests or incompatible principal types.
+     * </p>
+     * <p>
+     * The method expects the authentication principal to implement {@link AppUserPrincipal}.
+     * If the principal doesn't implement this interface, a warning is logged and an empty
+     * Optional is returned.
      * </p>
      *
-     * @return an {@code Optional} containing the current user if authenticated, or an empty {@code Optional} if there
-     * is no authenticated user or the authenticated principal is not an instance of {@link AppUserInfo} or
-     * {@link HasAppUserInfo}
-     * @see #require()
+     * @return an {@code Optional} containing the current user if authenticated and accessible,
+     * or an empty {@code Optional} if there is no authenticated user or the principal
+     * doesn't implement {@link AppUserPrincipal}
+     * @see #require() For cases where authentication is required
      */
     public static Optional<AppUserInfo> get() {
         return Optional.ofNullable(getUserFromAuthentication(SecurityContextHolder.getContext().getAuthentication()));
@@ -56,12 +81,8 @@ public final class CurrentUser {
 
         var principal = authentication.getPrincipal();
 
-        if (principal instanceof HasAppUserInfo hasAppUserInfo) {
-            return hasAppUserInfo.getAppUserInfo();
-        }
-
-        if (principal instanceof AppUserInfo appUserInfo) {
-            return appUserInfo;
+        if (principal instanceof AppUserPrincipal appUserPrincipal) {
+            return appUserPrincipal.getAppUser();
         }
 
         log.warn("Unexpected principal type: {}", principal.getClass().getName());
@@ -77,8 +98,8 @@ public final class CurrentUser {
      * </p>
      *
      * @return the currently authenticated user (never {@code null})
-     * @throws AuthenticationCredentialsNotFoundException if there is no authenticated user, or the authenticated
-     *                                                    principal is not an instance of {@link AppUserInfo} or {@link HasAppUserInfo}
+     * @throws AuthenticationCredentialsNotFoundException if there is no authenticated user,
+     *                                                    or the authenticated principal doesn't implement {@link AppUserPrincipal}
      */
     public static AppUserInfo require() {
         return get().orElseThrow(() -> new AuthenticationCredentialsNotFoundException("No current user"));
