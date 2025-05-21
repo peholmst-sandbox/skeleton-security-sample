@@ -17,6 +17,13 @@ public final class Email implements Serializable {
         this.email = email;
     }
 
+    /**
+     * Creates a new {@code Email} instance.
+     *
+     * @param email the email address (never {@code null}).
+     * @return a new {@code Email} instance.
+     * @throws IllegalArgumentException if the email is invalid.
+     */
     public static Email of(String email) {
         return new Email(email);
     }
@@ -38,6 +45,12 @@ public final class Email implements Serializable {
         return Objects.hashCode(email);
     }
 
+    /**
+     * Checks if the given email address is valid.
+     *
+     * @param email the email address to check (never {@code null}).
+     * @return {@code true} if the email address is valid, {@code false} otherwise.
+     */
     public static boolean isValid(String email) {
         // Check length
         if (email.isEmpty() || email.length() > 320) {
