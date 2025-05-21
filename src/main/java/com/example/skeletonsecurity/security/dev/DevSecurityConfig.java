@@ -1,30 +1,71 @@
 package com.example.skeletonsecurity.security.dev;
 
 import com.example.skeletonsecurity.security.dev.ui.view.LoginView;
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Security configuration for development.
+ * Security configuration for the development environment.
+ * <p>
+ * This configuration simplifies authentication during development by:
+ * <ul>
+ *   <li>Using a simple login view for authentication</li>
+ *   <li>Providing predefined test users with fixed credentials</li>
+ *   <li>Using an in-memory user details service with no external dependencies</li>
+ * </ul>
+ * </p>
+ * <p>
+ * This configuration is automatically activated when the application is started with the "dev" profile.
+ * It should <strong>not</strong> be used in production environments, as it uses hardcoded credentials
+ * and simplified security settings.
+ * </p>
+ * <p>
+ * The predefined users include:
+ * <ul>
+ *   <li>Alice Administrator (admin@example.com / tops3cr3t) - Has ADMIN role</li>
+ *   <li>Ursula User (user@example.com / tops3cr3t) - Has USER role</li>
+ * </ul>
+ * Additional test users can be added in the {@link #userDetailsService()} method.
+ * </p>
+ * <p>
+ * This configuration integrates with Vaadin's security framework through {@link VaadinSecurityConfigurer}
+ * to provide a seamless login experience in the Vaadin UI.
+ * </p>
+ *
+ * @see DevUserDetailsService The in-memory user details service implementation
+ * @see LoginView The login view used for authentication
+ * @see DevUser Builder for creating development test users
+ * @see org.springframework.context.annotation.Profile The profile annotation that activates this configuration
  */
 @EnableWebSecurity
 @Configuration
 @Profile("dev")
-class DevSecurityConfig extends VaadinWebSecurity {
+class DevSecurityConfig {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-        setLoginView(http, LoginView.class);
+    private static final Logger log = LoggerFactory.getLogger(DevSecurityConfig.class);
+
+    DevSecurityConfig() {
+        log.warn("Using development security configuration. This should not be used in production environments!");
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.with(VaadinSecurityConfigurer.vaadin(), configurer ->
+                configurer.loginView(LoginView.class)
+        ).build();
+    }
+
+    @Bean
+    UserDetailsService userDetailsService() {
+        // Add more test users here as needed
         return new DevUserDetailsService(
                 DevUser.builder("Alice Administrator", "admin@example.com")
                         .password("tops3cr3t")

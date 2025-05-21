@@ -2,6 +2,7 @@ package com.example.skeletonsecurity.security.dev;
 
 import com.example.skeletonsecurity.base.domain.Email;
 import com.example.skeletonsecurity.security.AppUserInfo;
+import com.example.skeletonsecurity.security.AppUserPrincipal;
 import com.example.skeletonsecurity.security.domain.UserId;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,67 +18,49 @@ import java.util.*;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Implementation of {@link AppUserInfo} for use with {@link DevUserDetailsService}.
+ * Implementation of {@link AppUserPrincipal} and {@link UserDetails} for development environments.
+ * <p>
+ * This class provides a convenient way to create test users with predefined credentials
+ * and user information for development and testing purposes. It implements both
+ * Spring Security's {@link UserDetails} interface and the application's {@link AppUserPrincipal}
+ * interface, making it compatible with both authentication and authorization systems.
+ * </p>
+ * <p>
+ * DevUser instances should only be used in development and test environments, not in production.
+ * They are typically created through the {@link #builder(String, String)} method and customized
+ * using the fluent {@link DevUserBuilder} API.
+ * </p>
+ * <p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * DevUser adminUser = DevUser.builder("Admin User", "admin@example.com")
+ *     .password("securePassword")
+ *     .roles("ADMIN")
+ *     .build();
+ * }
+ * </pre>
+ * </p>
+ *
+ * @see DevUserBuilder The builder for creating DevUser instances
+ * @see AppUserPrincipal The principal interface providing application user information
+ * @see UserDetails Spring Security's interface for user authentication information
  */
-final class DevUser implements AppUserInfo, UserDetails {
+final class DevUser implements AppUserPrincipal, UserDetails {
 
-    private final UserId userId;
-    private final String fullName;
-    private final @Nullable String profileUrl;
-    private final @Nullable String pictureUrl;
-    private final Email email;
-    private final ZoneId zoneInfo;
-    private final Locale locale;
+    private final AppUserInfo appUser;
     private final Set<GrantedAuthority> authorities;
     private final String password;
 
-    DevUser(UserId userId, String fullName, @Nullable String profileUrl, @Nullable String pictureUrl,
-            Email email, ZoneId zoneInfo, Locale locale, Collection<GrantedAuthority> authorities,
-            String password) {
-        this.userId = userId;
-        this.fullName = fullName;
-        this.profileUrl = profileUrl;
-        this.pictureUrl = pictureUrl;
-        this.email = email;
-        this.zoneInfo = zoneInfo;
-        this.locale = locale;
+    DevUser(AppUserInfo appUser, Collection<GrantedAuthority> authorities, String password) {
+        this.appUser = requireNonNull(appUser);
         this.authorities = Set.copyOf(authorities);
-        this.password = password;
+        this.password = requireNonNull(password);
     }
 
     @Override
-    public UserId userId() {
-        return userId;
-    }
-
-    @Override
-    public String fullName() {
-        return fullName;
-    }
-
-    @Override
-    public Optional<String> profileUrl() {
-        return Optional.ofNullable(profileUrl);
-    }
-
-    @Override
-    public Optional<String> pictureUrl() {
-        return Optional.ofNullable(pictureUrl);
-    }
-
-    @Override
-    public Email email() {
-        return email;
-    }
-
-    @Override
-    public ZoneId zoneId() {
-        return zoneInfo;
-    }
-
-    @Override
-    public Locale locale() {
-        return locale;
+    public AppUserInfo getAppUser() {
+        return appUser;
     }
 
     @Override
@@ -92,26 +75,73 @@ final class DevUser implements AppUserInfo, UserDetails {
 
     @Override
     public String getUsername() {
-        return userId.toString();
+        return appUser.userId().toString();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DevUser user) {
-            return this.userId.equals(user.userId);
+            return this.appUser.userId().equals(user.appUser.userId());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return this.userId.hashCode();
+        return this.appUser.userId().hashCode();
     }
 
+    /**
+     * Creates a new builder for constructing a development user.
+     * <p>
+     * The builder provides a fluent API for setting user properties.
+     * At minimum, a full name, email, and password must be provided
+     * before calling {@link DevUserBuilder#build()}.
+     * </p>
+     *
+     * @param fullName the user's full name (never {@code null})
+     * @param email    the user's email address (never {@code null})
+     * @return a new builder for creating a development user
+     */
     public static DevUserBuilder builder(String fullName, String email) {
         return new DevUserBuilder(fullName, email);
     }
 
+    /**
+     * Builder for creating {@link DevUser} instances with customized properties.
+     * <p>
+     * This builder uses a fluent API pattern to set various user properties
+     * before constructing the final user object.
+     * </p>
+     * <p>
+     * Required properties that must be set before calling {@link #build()}:
+     * <ul>
+     *   <li>Full name (set in constructor)</li>
+     *   <li>Email (set in constructor)</li>
+     *   <li>Password (set via {@link #password(String)})</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Optional properties with default values:
+     * <ul>
+     *   <li>Zone ID (system default)</li>
+     *   <li>Locale (system default)</li>
+     *   <li>Authorities (empty list)</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Example usage:
+     * <pre>
+     * {@code
+     * DevUser user = DevUser.builder("John Doe", "john@example.com")
+     *     .password("password123")
+     *     .roles("USER", "ADMIN")
+     *     .locale(Locale.US)
+     *     .build();
+     * }
+     * </pre>
+     * </p>
+     */
     static final class DevUserBuilder {
 
         private static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -131,26 +161,59 @@ final class DevUser implements AppUserInfo, UserDetails {
             this.email = Email.of(email);
         }
 
-        public DevUserBuilder profileUrl(String profileUrl) {
+        /**
+         * Sets the user's profile URL.
+         *
+         * @param profileUrl the profile URL
+         * @return this builder for method chaining
+         */
+        public DevUserBuilder profileUrl(@Nullable String profileUrl) {
             this.profileUrl = profileUrl;
             return this;
         }
 
-        public DevUserBuilder pictureUrl(String pictureUrl) {
+        /**
+         * Sets the user's profile picture URL.
+         *
+         * @param pictureUrl the picture URL
+         * @return this builder for method chaining
+         */
+        public DevUserBuilder pictureUrl(@Nullable String pictureUrl) {
             this.pictureUrl = pictureUrl;
             return this;
         }
 
+        /**
+         * Sets the user's time zone.
+         *
+         * @param zoneInfo the time zone (never {@code null})
+         * @return this builder for method chaining
+         */
         public DevUserBuilder zoneInfo(ZoneId zoneInfo) {
             this.zoneInfo = requireNonNull(zoneInfo);
             return this;
         }
 
+        /**
+         * Sets the user's locale.
+         *
+         * @param locale the locale (never {@code null})
+         * @return this builder for method chaining
+         */
         public DevUserBuilder locale(Locale locale) {
             this.locale = requireNonNull(locale);
             return this;
         }
 
+        /**
+         * Sets the user's roles, which will be converted to authorities with the "ROLE_" prefix.
+         * <p>
+         * For example, the role "ADMIN" will become the authority "ROLE_ADMIN".
+         * </p>
+         *
+         * @param roles the roles to assign to the user
+         * @return this builder for method chaining
+         */
         public DevUserBuilder roles(String... roles) {
             this.authorities = new ArrayList<>(roles.length);
             for (var role : roles) {
@@ -159,33 +222,60 @@ final class DevUser implements AppUserInfo, UserDetails {
             return this;
         }
 
+        /**
+         * Sets the user's authorities directly.
+         *
+         * @param authorities the authority strings
+         * @return this builder for method chaining
+         */
         public DevUserBuilder authorities(String... authorities) {
             return authorities(AuthorityUtils.createAuthorityList(authorities));
         }
 
+        /**
+         * Sets the user's authorities directly.
+         *
+         * @param authorities the authority objects (never {@code null})
+         * @return this builder for method chaining
+         */
         public DevUserBuilder authorities(Collection<? extends GrantedAuthority> authorities) {
             this.authorities = new ArrayList<>(authorities);
             return this;
         }
 
+        /**
+         * Sets the user's password.
+         * <p>
+         * The password will be encoded when the user is built.
+         * </p>
+         *
+         * @param password the raw password (never {@code null})
+         * @return this builder for method chaining
+         */
         public DevUserBuilder password(String password) {
-            this.password = password;
+            this.password = requireNonNull(password);
             return this;
         }
 
+        /**
+         * Builds the development user with the properties set on this builder.
+         *
+         * @return a new development user
+         * @throws IllegalStateException if the password has not been set
+         */
         public DevUser build() {
             if (password == null) {
                 throw new IllegalStateException("Password must be set before building the user");
             }
             var encodedPassword = PASSWORD_ENCODER.encode(password);
             return new DevUser(
-                    userId,
-                    fullName,
-                    profileUrl,
-                    pictureUrl,
-                    email,
-                    zoneInfo,
-                    locale,
+                    new DevUserInfo(userId,
+                            fullName,
+                            profileUrl,
+                            pictureUrl,
+                            email,
+                            zoneInfo,
+                            locale),
                     authorities,
                     encodedPassword);
         }
