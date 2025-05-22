@@ -1,6 +1,5 @@
 package com.example.skeletonsecurity.security.dev;
 
-import com.example.skeletonsecurity.security.dev.ui.view.LoginView;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * and simplified security settings.
  * </p>
  * <p>
- * The predefined users include:
- * <ul>
- *   <li>Alice Administrator (admin@example.com / tops3cr3t) - Has ADMIN role</li>
- *   <li>Ursula User (user@example.com / tops3cr3t) - Has USER role</li>
- * </ul>
- * Additional test users can be added in the {@link #userDetailsService()} method.
+ * The predefined users are declared in the {@link SampleUsers} class.
  * </p>
  * <p>
  * This configuration integrates with Vaadin's security framework through {@link VaadinSecurityConfigurer}
@@ -41,7 +35,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * </p>
  *
  * @see DevUserDetailsService The in-memory user details service implementation
- * @see LoginView The login view used for authentication
+ * @see DevLoginView The login view used for authentication
  * @see DevUser Builder for creating development test users
  * @see org.springframework.context.annotation.Profile The profile annotation that activates this configuration
  * @see SampleUsers User credentials for the predefined users
@@ -60,14 +54,12 @@ class DevSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.with(VaadinSecurityConfigurer.vaadin(), configurer ->
-                configurer.loginView(LoginView.class)
+                configurer.loginView(DevLoginView.class)
         ).build();
     }
 
     @Bean
     UserDetailsService userDetailsService() {
-        // Add more test users here as needed. Remember to also update LoginView, which lists the login credentials for
-        // easy access.
-        return new DevUserDetailsService(SampleUsers.ADMIN, SampleUsers.USER);
+        return new DevUserDetailsService(SampleUsers.ALL_USERS);
     }
 }

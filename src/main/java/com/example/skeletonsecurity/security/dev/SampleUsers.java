@@ -2,6 +2,7 @@ package com.example.skeletonsecurity.security.dev;
 
 import com.example.skeletonsecurity.security.domain.UserId;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -61,6 +62,11 @@ public final class SampleUsers {
     }
 
     /**
+     * The raw, unencoded password used by all sample users.
+     */
+    static final String SAMPLE_PASSWORD = "tops3cr3t";
+
+    /**
      * The user ID for the admin sample user.
      * <p>
      * This constant can be used in tests and assertions to verify that operations
@@ -87,7 +93,7 @@ public final class SampleUsers {
      */
     static DevUser ADMIN = DevUser.builder("Alice Administrator", ADMIN_EMAIL)
             .userId(ADMIN_ID)
-            .password("tops3cr3t")
+            .password(SAMPLE_PASSWORD)
             .roles("ADMIN")
             .build();
 
@@ -118,7 +124,29 @@ public final class SampleUsers {
      */
     static final DevUser USER = DevUser.builder("Ursula User", USER_EMAIL)
             .userId(USER_ID)
-            .password("tops3cr3t")
+            .password(SAMPLE_PASSWORD)
             .roles("USER")
             .build();
+
+    /**
+     * An unmodifiable list containing all sample users.
+     * <p>
+     * This list provides a convenient way to access all sample users at once, which is
+     * particularly useful when creating a {@link DevUserDetailsService} that should include
+     * all available test users. Using this list ensures that any new sample users added
+     * to this class will automatically be included in services that use it.
+     * </p>
+     * <p>
+     * Example usage in development configuration:
+     * <pre>
+     * {@code
+     * @Bean
+     * UserDetailsService userDetailsService() {
+     *     return new DevUserDetailsService(SampleUsers.ALL_USERS);
+     * }
+     * }
+     * </pre>
+     * </p>
+     */
+    static final List<DevUser> ALL_USERS = List.of(USER, ADMIN);
 }

@@ -8,10 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Implementation of {@link UserDetailsService} and {@link AppUserInfoLookup} for development environments.
@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  * Example usage:
  * <pre>
  * {@code
- * DevUserDetailsService userService = new DevUserDetailsService(
+ * DevUserDetailsService userService = new DevUserDetailsService(List.of(
  *     DevUser.builder("Admin User", "admin@example.com")
  *         .password("password")
  *         .roles("ADMIN")
@@ -41,7 +41,7 @@ import java.util.stream.Stream;
  *         .password("password")
  *         .roles("USER")
  *         .build()
- * );
+ * ));
  * }
  * </pre>
  * </p>
@@ -50,7 +50,7 @@ import java.util.stream.Stream;
  * @see UserDetailsService Spring Security's interface for loading user authentication details
  * @see AppUserInfoLookup The application's interface for looking up user information
  */
-class DevUserDetailsService implements UserDetailsService, AppUserInfoLookup {
+final class DevUserDetailsService implements UserDetailsService, AppUserInfoLookup {
 
     private final Map<Email, UserDetails> userByEmail;
     private final Map<UserId, AppUserInfo> userInfoById;
@@ -64,10 +64,10 @@ class DevUserDetailsService implements UserDetailsService, AppUserInfoLookup {
      *
      * @param users the development users to include in this service
      */
-    DevUserDetailsService(DevUser... users) {
+    DevUserDetailsService(Collection<DevUser> users) {
         userByEmail = new HashMap<>();
         userInfoById = new HashMap<>();
-        Stream.of(users).forEach(user -> {
+        users.forEach(user -> {
             userByEmail.put(user.getAppUser().email(), user);
             userInfoById.put(user.getAppUser().userId(), user.getAppUser());
         });
@@ -75,8 +75,14 @@ class DevUserDetailsService implements UserDetailsService, AppUserInfoLookup {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Email email;
+        try {
+            email = Email.of(username);
+        } catch (IllegalArgumentException e) {
+            throw new UsernameNotFoundException(username);
+        }
         return Optional
-                .ofNullable(userByEmail.get(Email.of(username)))
+                .ofNullable(userByEmail.get(email))
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 

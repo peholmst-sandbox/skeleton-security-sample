@@ -1,4 +1,4 @@
-package com.example.skeletonsecurity.security.dev.ui.view;
+package com.example.skeletonsecurity.security.dev;
 
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.login.LoginForm;
@@ -18,11 +18,11 @@ import org.springframework.context.annotation.Profile;
 @PageTitle("Login")
 @AnonymousAllowed
 @Profile("dev")
-public class LoginView extends Main implements BeforeEnterObserver {
+public class DevLoginView extends Main implements BeforeEnterObserver {
 
     private final LoginForm login;
 
-    public LoginView() {
+    public DevLoginView() {
         // Create the components
         var login18n = LoginI18n.createDefault();
         login18n.getForm().setUsername("Email");
@@ -34,12 +34,11 @@ public class LoginView extends Main implements BeforeEnterObserver {
         login.setI18n(login18n);
 
         var userList = new UnorderedList();
-        userList.add(new ListItem("user@example.com / tops3cr3t"));
-        userList.add(new ListItem("admin@example.com / tops3cr3t"));
+        SampleUsers.ALL_USERS.forEach(user -> userList.add(new ListItem(user.getAppUser().email().toString())));
 
         // Configure the view
         setSizeFull();
-        var exampleUsers = new Div(new H3("Example users"), userList);
+        var exampleUsers = new Div(new H3("Example users"), new Paragraph("The password for every user is: " + SampleUsers.SAMPLE_PASSWORD), userList);
         var centerDiv = new Div(login, exampleUsers);
         add(centerDiv);
 
