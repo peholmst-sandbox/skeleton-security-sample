@@ -48,7 +48,7 @@ class DevSecurityConfig {
     private static final Logger log = LoggerFactory.getLogger(DevSecurityConfig.class);
 
     DevSecurityConfig() {
-        log.warn("Using development security configuration. This should not be used in production environments!");
+        log.warn("Using DEVELOPMENT security configuration. This should not be used in production environments!");
     }
 
     @Bean
