@@ -1,6 +1,6 @@
 package com.example.skeletonsecurity.base.ui.view;
 
-import com.example.skeletonsecurity.security.AppUserInfo;
+import com.example.skeletonsecurity.security.CurrentUser;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -25,7 +25,7 @@ import jakarta.annotation.security.PermitAll;
 import static com.vaadin.flow.theme.lumo.LumoUtility.*;
 
 @Layout
-@PermitAll // When security is enabled, allow all authenticated users
+@PermitAll // Allow all authenticated users
 public final class MainLayout extends AppLayout {
 
     private final AuthenticationContext authenticationContext;
@@ -65,10 +65,9 @@ public final class MainLayout extends AppLayout {
     }
 
     private Component createUserMenu() {
-        var user = authenticationContext.getAuthenticatedUser(AppUserInfo.class).orElseThrow();
+        var user = CurrentUser.require();
 
-        var avatar = new Avatar(user.fullName());
-        user.pictureUrl().ifPresent(avatar::setImage);
+        var avatar = new Avatar(user.fullName(), user.pictureUrl());
         avatar.addThemeVariants(AvatarVariant.LUMO_XSMALL);
         avatar.addClassNames(Margin.Right.SMALL);
         avatar.setColorIndex(5);
@@ -79,8 +78,10 @@ public final class MainLayout extends AppLayout {
 
         var userMenuItem = userMenu.addItem(avatar);
         userMenuItem.add(user.fullName());
-        user.profileUrl().ifPresent(profileUrl -> userMenuItem.getSubMenu().addItem(new Anchor(profileUrl, "View Profile", AnchorTarget.BLANK)));
-        userMenuItem.getSubMenu().addItem("Manage Settings").setEnabled(false);
+        if (user.profileUrl() != null) {
+            userMenuItem.getSubMenu().addItem(new Anchor(user.profileUrl(), "View Profile", AnchorTarget.BLANK));
+        }
+        // TODO Add additional items to the user menu if needed
         userMenuItem.getSubMenu().addItem("Logout", event -> authenticationContext.logout());
 
         return userMenu;
