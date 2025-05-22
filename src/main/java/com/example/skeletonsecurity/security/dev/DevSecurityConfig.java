@@ -65,7 +65,8 @@ class DevSecurityConfig {
 
     @Bean
     UserDetailsService userDetailsService() {
-        // Add more test users here as needed
+        // Add more test users here as needed. Remember to also update LoginView, which lists the login credentials for
+        // easy access.
         return new DevUserDetailsService(
                 DevUser.builder("Alice Administrator", "admin@example.com")
                         .password("tops3cr3t")
