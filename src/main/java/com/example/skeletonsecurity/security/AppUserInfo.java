@@ -1,6 +1,5 @@
 package com.example.skeletonsecurity.security;
 
-import com.example.skeletonsecurity.base.domain.Email;
 import com.example.skeletonsecurity.security.domain.UserId;
 import org.jspecify.annotations.Nullable;
 
@@ -35,6 +34,32 @@ public interface AppUserInfo {
      * @return the unique user identifier (never {@code null})
      */
     UserId userId();
+
+    /**
+     * Returns the user's preferred username for display and identification purposes.
+     * <p>
+     * This username is intended for human-readable display in user interfaces and may
+     * be different from the unique {@link #userId()}. Unlike the user ID, the preferred
+     * username is typically chosen by the user and may be more meaningful to them and
+     * other users of the application.
+     * </p>
+     * <p>
+     * <strong>Important:</strong> The preferred username can change over time as users
+     * update their profiles. It should <strong>not</strong> be used as a permanent identifier
+     * for users in database relationships, audit logs, or any other persistent storage.
+     * Use {@link #userId()} for permanent user identification. The preferred username
+     * should only be used for identification when entered by a human user (e.g., in
+     * search forms or user lookup interfaces).
+     * </p>
+     * <p>
+     * For OIDC authenticated users, this typically corresponds to the "preferred_username"
+     * claim.
+     * </p>
+     *
+     * @return the user's preferred username (never {@code null})
+     * @see #userId() For permanent, immutable user identification
+     */
+    String preferredUsername();
 
     /**
      * Returns the user's full display name.
@@ -80,9 +105,11 @@ public interface AppUserInfo {
      * and may be used for notifications and communications.
      * </p>
      *
-     * @return the user's email address (never {@code null})
+     * @return the user's email address, or {@code null} if not available
      */
-    Email email();
+    default @Nullable String email() {
+        return null;
+    }
 
     /**
      * Returns the user's preferred time zone.

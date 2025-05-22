@@ -1,6 +1,5 @@
 package com.example.skeletonsecurity.security.dev;
 
-import com.example.skeletonsecurity.base.domain.Email;
 import com.example.skeletonsecurity.security.AppUserInfo;
 import com.example.skeletonsecurity.security.domain.UserId;
 import org.jspecify.annotations.Nullable;
@@ -23,30 +22,32 @@ import static java.util.Objects.requireNonNull;
  * test user information.
  * </p>
  *
- * @param userId     the unique identifier for the user (never {@code null})
- * @param fullName   the user's full name (never {@code null})
- * @param profileUrl the URL to the user's profile page, or {@code null} if not available
- * @param pictureUrl the URL to the user's profile picture, or {@code null} if not available
- * @param email      the user's email address (never {@code null})
- * @param zoneId     the user's time zone (never {@code null})
- * @param locale     the user's locale (never {@code null})
+ * @param userId            the unique identifier for the user (never {@code null})
+ * @param preferredUsername the user's preferred username (never {@code null}).
+ * @param fullName          the user's full name (never {@code null})
+ * @param profileUrl        the URL to the user's profile page, or {@code null} if not available
+ * @param pictureUrl        the URL to the user's profile picture, or {@code null} if not available
+ * @param email             the user's email address, or {@code null} if not available
+ * @param zoneId            the user's time zone (never {@code null})
+ * @param locale            the user's locale (never {@code null})
  * @see DevUser The development user class that uses this record
  * @see AppUserInfo The interface this record implements
  */
 record DevUserInfo(
         UserId userId,
+        String preferredUsername,
         String fullName,
         @Nullable String profileUrl,
         @Nullable String pictureUrl,
-        Email email,
+        @Nullable String email,
         ZoneId zoneId,
         Locale locale
 ) implements AppUserInfo {
 
     DevUserInfo {
         requireNonNull(userId);
+        requireNonNull(preferredUsername);
         requireNonNull(fullName);
-        requireNonNull(email);
         requireNonNull(zoneId);
         requireNonNull(locale);
     }

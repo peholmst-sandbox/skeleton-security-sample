@@ -16,7 +16,7 @@ import java.util.UUID;
  * </p>
  * <p>
  * The class provides both the complete {@link DevUser} objects (for use in user details services)
- * and individual constants for user IDs and email addresses (for use in tests and assertions).
+ * and individual constants for user IDs and preferred usernames (for use in tests and assertions).
  * This allows tests to reference specific user properties without needing to extract them
  * from the user objects.
  * </p>
@@ -36,7 +36,7 @@ import java.util.UUID;
  * <pre>
  * {@code
  * @Test
- * @WithUserDetails(SampleUsers.USER_EMAIL)
+ * @WithUserDetails(SampleUsers.USER_USERNAME)
  * public void testUserFunctionality() {
  *     // Test logic here
  *     assertThat(result.getCreatedBy()).isEqualTo(SampleUsers.USER_ID);
@@ -77,13 +77,13 @@ public final class SampleUsers {
     public static final UserId ADMIN_ID = UserId.of(UUID.randomUUID().toString());
 
     /**
-     * The email address for the admin sample user.
+     * The preferred username of the admin sample user.
      * <p>
      * This constant can be used with {@link org.springframework.security.test.context.support.WithUserDetails @WithUserDetails}
      * in tests to authenticate as the admin user.
      * </p>
      */
-    public static final String ADMIN_EMAIL = "admin@example.com";
+    public static final String ADMIN_USERNAME = "admin";
 
     /**
      * The admin sample user with administrative privileges.
@@ -92,9 +92,10 @@ public final class SampleUsers {
      * and tests that require administrative access.
      * </p>
      */
-    static DevUser ADMIN = DevUser.builder("Alice Administrator", ADMIN_EMAIL)
+    static DevUser ADMIN = DevUser.builder(ADMIN_USERNAME, "Alice Administrator")
             .userId(ADMIN_ID)
             .password(SAMPLE_PASSWORD)
+            .email("alice@example.com")
             .roles(AppRoles.ADMIN, AppRoles.USER)
             .build();
 
@@ -108,13 +109,13 @@ public final class SampleUsers {
     public static final UserId USER_ID = UserId.of(UUID.randomUUID().toString());
 
     /**
-     * The email address for the regular sample user.
+     * The preferred username of the regular sample user.
      * <p>
      * This constant can be used with {@link org.springframework.security.test.context.support.WithUserDetails @WithUserDetails}
      * in tests to authenticate as the regular user.
      * </p>
      */
-    public static final String USER_EMAIL = "user@example.com";
+    public static final String USER_USERNAME = "user";
 
     /**
      * The regular sample user with standard privileges.
@@ -123,9 +124,10 @@ public final class SampleUsers {
      * and tests that require standard user access.
      * </p>
      */
-    static final DevUser USER = DevUser.builder("Ursula User", USER_EMAIL)
+    static final DevUser USER = DevUser.builder(USER_USERNAME, "Ursula User")
             .userId(USER_ID)
             .password(SAMPLE_PASSWORD)
+            .email("ursula@example.com")
             .roles(AppRoles.USER)
             .build();
 

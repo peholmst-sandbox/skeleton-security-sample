@@ -25,7 +25,6 @@ public class DevLoginView extends Main implements BeforeEnterObserver {
     public DevLoginView() {
         // Create the components
         var login18n = LoginI18n.createDefault();
-        login18n.getForm().setUsername("Email");
         login18n.getForm().setTitle("Skeleton Security Sample");
         login18n.setAdditionalInformation("This is for development purposes only. You should not see this in production.");
 
@@ -34,7 +33,7 @@ public class DevLoginView extends Main implements BeforeEnterObserver {
         login.setI18n(login18n);
 
         var userList = new UnorderedList();
-        SampleUsers.ALL_USERS.forEach(user -> userList.add(new ListItem(user.getAppUser().email().toString())));
+        SampleUsers.ALL_USERS.forEach(user -> userList.add(new ListItem(user.getAppUser().preferredUsername())));
 
         // Configure the view
         setSizeFull();

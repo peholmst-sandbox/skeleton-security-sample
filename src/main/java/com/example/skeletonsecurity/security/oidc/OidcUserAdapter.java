@@ -1,6 +1,5 @@
 package com.example.skeletonsecurity.security.oidc;
 
-import com.example.skeletonsecurity.base.domain.Email;
 import com.example.skeletonsecurity.security.AppUserInfo;
 import com.example.skeletonsecurity.security.AppUserPrincipal;
 import com.example.skeletonsecurity.security.domain.UserId;
@@ -15,6 +14,8 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Adapter implementation that bridges Spring Security's OIDC user representation
@@ -42,7 +43,8 @@ public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
     private static AppUserInfo createAppUserInfo(OidcUser oidcUser) {
         return new AppUserInfo() {
             private final UserId userId = UserId.of(oidcUser.getSubject());
-            private final Email email = Email.of(oidcUser.getEmail());
+            private final String preferredUsername = requireNonNull(oidcUser.getPreferredUsername());
+            private final String fullName = requireNonNull(oidcUser.getFullName());
             private final ZoneId zoneId = parseZoneInfo(oidcUser.getZoneInfo());
             private final Locale locale = parseLocale(oidcUser.getLocale());
 
@@ -52,8 +54,13 @@ public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
             }
 
             @Override
+            public String preferredUsername() {
+                return preferredUsername;
+            }
+
+            @Override
             public String fullName() {
-                return oidcUser.getFullName();
+                return fullName;
             }
 
             @Override
@@ -67,8 +74,8 @@ public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
             }
 
             @Override
-            public Email email() {
-                return email;
+            public @Nullable String email() {
+                return oidcUser.getEmail();
             }
 
             @Override

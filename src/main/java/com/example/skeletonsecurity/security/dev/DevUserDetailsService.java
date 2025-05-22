@@ -1,6 +1,5 @@
 package com.example.skeletonsecurity.security.dev;
 
-import com.example.skeletonsecurity.base.domain.Email;
 import com.example.skeletonsecurity.security.AppUserInfo;
 import com.example.skeletonsecurity.security.AppUserInfoLookup;
 import com.example.skeletonsecurity.security.domain.UserId;
@@ -19,7 +18,7 @@ import java.util.Optional;
  * This class provides a simple in-memory implementation of both Spring Security's
  * {@link UserDetailsService} for authentication and the application's {@link AppUserInfoLookup}
  * for user information retrieval. It stores a collection of {@link DevUser} instances and
- * allows looking them up by either email address (for authentication) or user ID
+ * allows looking them up by either preferred username (for authentication) or user ID
  * (for information retrieval).
  * </p>
  * <p>
@@ -33,12 +32,14 @@ import java.util.Optional;
  * <pre>
  * {@code
  * DevUserDetailsService userService = new DevUserDetailsService(List.of(
- *     DevUser.builder("Admin User", "admin@example.com")
+ *     DevUser.builder("admin", "Admin User")
  *         .password("password")
+ *         .email("admin@example.com")
  *         .roles("ADMIN")
  *         .build(),
- *     DevUser.builder("Regular User", "user@example.com")
+ *     DevUser.builder("user", "Regular User")
  *         .password("password")
+ *         .email("user@example.com")
  *         .roles("USER")
  *         .build()
  * ));
@@ -52,7 +53,7 @@ import java.util.Optional;
  */
 final class DevUserDetailsService implements UserDetailsService, AppUserInfoLookup {
 
-    private final Map<Email, UserDetails> userByEmail;
+    private final Map<String, UserDetails> userByUsername;
     private final Map<UserId, AppUserInfo> userInfoById;
 
     /**
@@ -65,24 +66,18 @@ final class DevUserDetailsService implements UserDetailsService, AppUserInfoLook
      * @param users the development users to include in this service
      */
     DevUserDetailsService(Collection<DevUser> users) {
-        userByEmail = new HashMap<>();
+        userByUsername = new HashMap<>();
         userInfoById = new HashMap<>();
         users.forEach(user -> {
-            userByEmail.put(user.getAppUser().email(), user);
+            userByUsername.put(user.getAppUser().preferredUsername(), user);
             userInfoById.put(user.getAppUser().userId(), user.getAppUser());
         });
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Email email;
-        try {
-            email = Email.of(username);
-        } catch (IllegalArgumentException e) {
-            throw new UsernameNotFoundException(username);
-        }
         return Optional
-                .ofNullable(userByEmail.get(email))
+                .ofNullable(userByUsername.get(username))
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 

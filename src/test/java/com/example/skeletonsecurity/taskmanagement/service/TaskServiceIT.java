@@ -43,7 +43,7 @@ class TaskServiceIT {
     }
 
     @Test
-    @WithUserDetails(SampleUsers.USER_EMAIL)
+    @WithUserDetails(SampleUsers.USER_USERNAME)
     public void tasks_are_stored_in_the_database_with_the_current_timestamp() {
         var now = clock.instant();
         var due = LocalDate.of(2025, 2, 7);
@@ -58,7 +58,7 @@ class TaskServiceIT {
     }
 
     @Test
-    @WithUserDetails(SampleUsers.ADMIN_EMAIL)
+    @WithUserDetails(SampleUsers.ADMIN_USERNAME)
     public void tasks_are_validated_before_they_are_stored() {
         assertThatThrownBy(() -> taskService.createTask("X".repeat(Task.DESCRIPTION_MAX_LENGTH + 1), null))
                 .isInstanceOf(ValidationException.class);

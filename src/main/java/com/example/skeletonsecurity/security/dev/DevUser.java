@@ -1,6 +1,5 @@
 package com.example.skeletonsecurity.security.dev;
 
-import com.example.skeletonsecurity.base.domain.Email;
 import com.example.skeletonsecurity.security.AppUserInfo;
 import com.example.skeletonsecurity.security.AppUserPrincipal;
 import com.example.skeletonsecurity.security.domain.UserId;
@@ -34,8 +33,9 @@ import static java.util.Objects.requireNonNull;
  * Example usage:
  * <pre>
  * {@code
- * DevUser adminUser = DevUser.builder("Admin User", "admin@example.com")
+ * DevUser adminUser = DevUser.builder("admin", "Admin User")
  *     .password("securePassword")
+ *     .email("admin@example.com")
  *     .roles("ADMIN")
  *     .build();
  * }
@@ -75,7 +75,7 @@ final class DevUser implements AppUserPrincipal, UserDetails {
 
     @Override
     public String getUsername() {
-        return appUser.userId().toString();
+        return appUser.preferredUsername();
     }
 
     @Override
@@ -95,16 +95,16 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * Creates a new builder for constructing a development user.
      * <p>
      * The builder provides a fluent API for setting user properties.
-     * At minimum, a full name, email, and password must be provided
+     * At minimum, a preferred username, full name, and password must be provided
      * before calling {@link DevUserBuilder#build()}.
      * </p>
      *
-     * @param fullName the user's full name (never {@code null})
-     * @param email    the user's email address (never {@code null})
+     * @param preferredUsername the user's preferred username (never {@code null})
+     * @param fullName          the user's full name (never {@code null})
      * @return a new builder for creating a development user
      */
-    public static DevUserBuilder builder(String fullName, String email) {
-        return new DevUserBuilder(fullName, email);
+    public static DevUserBuilder builder(String preferredUsername, String fullName) {
+        return new DevUserBuilder(preferredUsername, fullName);
     }
 
     /**
@@ -116,8 +116,8 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * <p>
      * Required properties that must be set before calling {@link #build()}:
      * <ul>
+     *   <li>Preferred username (set in constructor)</li>
      *   <li>Full name (set in constructor)</li>
-     *   <li>Email (set in constructor)</li>
      *   <li>Password (set via {@link #password(String)})</li>
      * </ul>
      * </p>
@@ -134,8 +134,9 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * Example usage:
      * <pre>
      * {@code
-     * DevUser user = DevUser.builder("John Doe", "john@example.com")
+     * DevUser user = DevUser.builder("john.doe", "John Doe")
      *     .password("password123")
+     *     .email("john@example.com")
      *     .roles("USER", "ADMIN")
      *     .locale(Locale.US)
      *     .build();
@@ -148,8 +149,9 @@ final class DevUser implements AppUserPrincipal, UserDetails {
         private static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
         private @Nullable UserId userId;
+        private final String preferredUsername;
         private final String fullName;
-        private final Email email;
+        private @Nullable String email;
         private @Nullable String profileUrl;
         private @Nullable String pictureUrl;
         private ZoneId zoneInfo = ZoneId.systemDefault();
@@ -157,9 +159,9 @@ final class DevUser implements AppUserPrincipal, UserDetails {
         private List<GrantedAuthority> authorities = Collections.emptyList();
         private @Nullable String password;
 
-        DevUserBuilder(String fullName, String email) {
+        DevUserBuilder(String preferredUsername, String fullName) {
+            this.preferredUsername = requireNonNull(preferredUsername);
             this.fullName = requireNonNull(fullName);
-            this.email = Email.of(email);
         }
 
         /**
@@ -170,6 +172,17 @@ final class DevUser implements AppUserPrincipal, UserDetails {
          */
         public DevUserBuilder userId(UserId userId) {
             this.userId = requireNonNull(userId);
+            return this;
+        }
+
+        /**
+         * Sets the user's email address.
+         *
+         * @param email the email address.
+         * @return this builder for method chaining.
+         */
+        public DevUserBuilder email(@Nullable String email) {
+            this.email = email;
             return this;
         }
 
@@ -285,6 +298,7 @@ final class DevUser implements AppUserPrincipal, UserDetails {
             }
             return new DevUser(
                     new DevUserInfo(userId,
+                            preferredUsername,
                             fullName,
                             profileUrl,
                             pictureUrl,
