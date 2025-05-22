@@ -124,6 +124,7 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * <p>
      * Optional properties with default values:
      * <ul>
+     *   <li>User ID (random UUID)</li>
      *   <li>Zone ID (system default)</li>
      *   <li>Locale (system default)</li>
      *   <li>Authorities (empty list)</li>
@@ -146,7 +147,7 @@ final class DevUser implements AppUserPrincipal, UserDetails {
 
         private static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-        private final UserId userId = UserId.of(UUID.randomUUID().toString());
+        private @Nullable UserId userId;
         private final String fullName;
         private final Email email;
         private @Nullable String profileUrl;
@@ -159,6 +160,17 @@ final class DevUser implements AppUserPrincipal, UserDetails {
         DevUserBuilder(String fullName, String email) {
             this.fullName = requireNonNull(fullName);
             this.email = Email.of(email);
+        }
+
+        /**
+         * Sets the user's ID. If left unset, a random UUID is generated when the user is built.
+         *
+         * @param userId the user ID (never {@code null})
+         * @return this builder for method chaining
+         */
+        public DevUserBuilder userId(UserId userId) {
+            this.userId = requireNonNull(userId);
+            return this;
         }
 
         /**
@@ -268,6 +280,9 @@ final class DevUser implements AppUserPrincipal, UserDetails {
                 throw new IllegalStateException("Password must be set before building the user");
             }
             var encodedPassword = PASSWORD_ENCODER.encode(password);
+            if (userId == null) {
+                userId = UserId.of(UUID.randomUUID().toString());
+            }
             return new DevUser(
                     new DevUserInfo(userId,
                             fullName,

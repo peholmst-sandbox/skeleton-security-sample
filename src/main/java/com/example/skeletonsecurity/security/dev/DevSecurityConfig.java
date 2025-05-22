@@ -44,6 +44,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * @see LoginView The login view used for authentication
  * @see DevUser Builder for creating development test users
  * @see org.springframework.context.annotation.Profile The profile annotation that activates this configuration
+ * @see SampleUsers User credentials for the predefined users
  */
 @EnableWebSecurity
 @Configuration
@@ -67,15 +68,6 @@ class DevSecurityConfig {
     UserDetailsService userDetailsService() {
         // Add more test users here as needed. Remember to also update LoginView, which lists the login credentials for
         // easy access.
-        return new DevUserDetailsService(
-                DevUser.builder("Alice Administrator", "admin@example.com")
-                        .password("tops3cr3t")
-                        .roles("ADMIN")
-                        .build(),
-                DevUser.builder("Ursula User", "user@example.com")
-                        .password("tops3cr3t")
-                        .roles("USER")
-                        .build()
-        );
+        return new DevUserDetailsService(SampleUsers.ADMIN, SampleUsers.USER);
     }
 }
