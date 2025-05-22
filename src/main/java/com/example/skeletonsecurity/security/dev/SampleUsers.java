@@ -1,5 +1,6 @@
 package com.example.skeletonsecurity.security.dev;
 
+import com.example.skeletonsecurity.security.AppRoles;
 import com.example.skeletonsecurity.security.domain.UserId;
 
 import java.util.List;
@@ -87,14 +88,14 @@ public final class SampleUsers {
     /**
      * The admin sample user with administrative privileges.
      * <p>
-     * This user has the "ADMIN" role and can be used in development configurations
+     * This user has both the "ADMIN" and the "USER" role and can be used in development configurations
      * and tests that require administrative access.
      * </p>
      */
     static DevUser ADMIN = DevUser.builder("Alice Administrator", ADMIN_EMAIL)
             .userId(ADMIN_ID)
             .password(SAMPLE_PASSWORD)
-            .roles("ADMIN")
+            .roles(AppRoles.ADMIN, AppRoles.USER)
             .build();
 
     /**
@@ -125,7 +126,7 @@ public final class SampleUsers {
     static final DevUser USER = DevUser.builder("Ursula User", USER_EMAIL)
             .userId(USER_ID)
             .password(SAMPLE_PASSWORD)
-            .roles("USER")
+            .roles(AppRoles.USER)
             .build();
 
     /**
