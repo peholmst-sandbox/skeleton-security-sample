@@ -1,15 +1,21 @@
 package com.example.skeletonsecurity.taskmanagement.domain;
 
 import com.example.skeletonsecurity.base.domain.AbstractEntity;
+import com.example.skeletonsecurity.security.domain.UserId;
+import com.example.skeletonsecurity.security.domain.jpa.UserIdAttributeConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "task")
+@EntityListeners(AuditingEntityListener.class)
 public class Task extends AbstractEntity<Long> {
 
     public static final int DESCRIPTION_MAX_LENGTH = 255;
@@ -23,8 +29,14 @@ public class Task extends AbstractEntity<Long> {
     @Size(max = DESCRIPTION_MAX_LENGTH)
     private String description;
 
-    @Column(name = "creation_date", nullable = false)
-    private Instant creationDate;
+    @Column(name = "created_date", nullable = false)
+    @CreatedDate
+    private Instant createdDate;
+
+    @Column(name = "created_by")
+    @Convert(converter = UserIdAttributeConverter.class)
+    @CreatedBy
+    private UserId createdBy;
 
     @Column(name = "due_date")
     @Nullable
@@ -43,12 +55,12 @@ public class Task extends AbstractEntity<Long> {
         this.description = description;
     }
 
-    public Instant getCreationDate() {
-        return creationDate;
+    public Instant getCreatedDate() {
+        return createdDate;
     }
 
-    public void setCreationDate(Instant creationDate) {
-        this.creationDate = creationDate;
+    public @Nullable UserId getCreatedBy() {
+        return createdBy;
     }
 
     public @Nullable LocalDate getDueDate() {

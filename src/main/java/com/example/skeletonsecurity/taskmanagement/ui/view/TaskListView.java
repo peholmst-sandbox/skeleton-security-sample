@@ -1,6 +1,8 @@
 package com.example.skeletonsecurity.taskmanagement.ui.view;
 
 import com.example.skeletonsecurity.base.ui.component.ViewToolbar;
+import com.example.skeletonsecurity.security.AppUserInfo;
+import com.example.skeletonsecurity.security.AppUserInfoLookup;
 import com.example.skeletonsecurity.taskmanagement.domain.Task;
 import com.example.skeletonsecurity.taskmanagement.service.TaskService;
 import com.vaadin.flow.component.button.Button;
@@ -27,18 +29,20 @@ import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRe
 @Route("task-list")
 @PageTitle("Task List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "Task List")
-@PermitAll // When security is enabled, allow all authenticated users
+@PermitAll // Allow all authenticated users
 public class TaskListView extends Main {
 
     private final TaskService taskService;
+    private final AppUserInfoLookup appUserInfoLookup;
 
     final TextField description;
     final DatePicker dueDate;
     final Button createBtn;
     final Grid<Task> taskGrid;
 
-    public TaskListView(TaskService taskService, Clock clock) {
+    public TaskListView(TaskService taskService, AppUserInfoLookup appUserInfoLookup, Clock clock) {
         this.taskService = taskService;
+        this.appUserInfoLookup = appUserInfoLookup;
 
         description = new TextField();
         description.setPlaceholder("What do you want to do?");
@@ -62,7 +66,8 @@ public class TaskListView extends Main {
         taskGrid.addColumn(Task::getDescription).setHeader("Description");
         taskGrid.addColumn(task -> Optional.ofNullable(task.getDueDate()).map(dateFormatter::format).orElse("Never"))
                 .setHeader("Due Date");
-        taskGrid.addColumn(task -> dateTimeFormatter.format(task.getCreationDate())).setHeader("Creation Date");
+        taskGrid.addColumn(task -> dateTimeFormatter.format(task.getCreatedDate())).setHeader("Creation Date");
+        taskGrid.addColumn(task -> appUserInfoLookup.findUserInfo(task.getCreatedBy()).map(AppUserInfo::fullName).orElse("Unknown")).setHeader("Created By");
         taskGrid.setSizeFull();
 
         setSizeFull();
