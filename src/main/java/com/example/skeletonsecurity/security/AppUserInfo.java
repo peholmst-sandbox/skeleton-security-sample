@@ -65,12 +65,14 @@ public interface AppUserInfo {
      * Returns the user's full display name.
      * <p>
      * This typically combines the user's first and last name in a format appropriate
-     * for display in the user interface.
+     * for display in the user interface. If the user has no full name, the preferred username is used instead.
      * </p>
      *
      * @return the user's full name (never {@code null})
      */
-    String getFullName();
+    default String getFullName() {
+        return getPreferredUsername();
+    }
 
     /**
      * Returns a URL to the user's profile page in the application or external system.
