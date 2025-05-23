@@ -52,7 +52,6 @@ import java.util.UUID;
  *
  * @see DevUser The development user implementation
  * @see DevUserDetailsService The service that uses these sample users
- * @see org.springframework.security.test.context.support.WithUserDetails
  */
 public final class SampleUsers {
 
@@ -79,7 +78,7 @@ public final class SampleUsers {
     /**
      * The preferred username of the admin sample user.
      * <p>
-     * This constant can be used with {@link org.springframework.security.test.context.support.WithUserDetails @WithUserDetails}
+     * This constant can be used with {@code @WithUserDetails}
      * in tests to authenticate as the admin user.
      * </p>
      */
@@ -113,7 +112,7 @@ public final class SampleUsers {
     /**
      * The preferred username of the regular sample user.
      * <p>
-     * This constant can be used with {@link org.springframework.security.test.context.support.WithUserDetails @WithUserDetails}
+     * This constant can be used with {@code @WithUserDetails}
      * in tests to authenticate as the regular user.
      * </p>
      */

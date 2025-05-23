@@ -33,7 +33,6 @@ import static com.vaadin.flow.spring.data.VaadinSpringDataHelpers.toSpringPageRe
 public class TaskListView extends Main {
 
     private final TaskService taskService;
-    private final AppUserInfoLookup appUserInfoLookup;
 
     final TextField description;
     final DatePicker dueDate;
@@ -42,7 +41,6 @@ public class TaskListView extends Main {
 
     public TaskListView(TaskService taskService, AppUserInfoLookup appUserInfoLookup, Clock clock) {
         this.taskService = taskService;
-        this.appUserInfoLookup = appUserInfoLookup;
 
         description = new TextField();
         description.setPlaceholder("What do you want to do?");
