@@ -25,7 +25,7 @@ import static java.util.Objects.requireNonNull;
  * consistent access to user information throughout the application without method conflicts.
  * </p>
  */
-public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
+final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
 
     private final OidcUser delegate;
     private final AppUserInfo appUserInfo;
@@ -33,10 +33,10 @@ public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
     /**
      * Creates a new adapter for the specified OIDC user.
      *
-     * @param oidcUser the OIDC user to adapt
+     * @param oidcUser the OIDC user to adapt (never {@code null})
      */
     public OidcUserAdapter(OidcUser oidcUser) {
-        this.delegate = oidcUser;
+        this.delegate = requireNonNull(oidcUser);
         this.appUserInfo = createAppUserInfo(oidcUser);
     }
 
@@ -90,7 +90,30 @@ public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
         };
     }
 
-    private static ZoneId parseZoneInfo(@Nullable String zoneInfo) {
+    /**
+     * Parses a zone info string into a {@link ZoneId}, with fallback to system default.
+     * <p>
+     * This utility method safely converts OIDC "zoneinfo" claim values or similar
+     * timezone identifiers into Java {@link ZoneId} objects. It handles invalid
+     * or null input gracefully by falling back to the system default timezone.
+     * </p>
+     * <p>
+     * The method accepts standard timezone identifiers such as:
+     * <ul>
+     *   <li>"America/New_York"</li>
+     *   <li>"Europe/London"</li>
+     *   <li>"UTC"</li>
+     *   <li>"+02:00" (offset-based IDs)</li>
+     * </ul>
+     * </p>
+     *
+     * @param zoneInfo the timezone identifier string, may be {@code null}
+     * @return a {@link ZoneId} parsed from the input, or the system default if
+     * the input is null or invalid
+     * @see ZoneId#of(String) The underlying parsing method
+     * @see ZoneId#systemDefault() The fallback used for invalid input
+     */
+    static ZoneId parseZoneInfo(@Nullable String zoneInfo) {
         if (zoneInfo == null) {
             return ZoneId.systemDefault();
         }
@@ -101,7 +124,35 @@ public final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
         }
     }
 
-    private static Locale parseLocale(@Nullable String locale) {
+    /**
+     * Parses a locale string into a {@link Locale}, with fallback to system default.
+     * <p>
+     * This utility method safely converts OIDC "locale" claim values or similar
+     * locale identifiers into Java {@link Locale} objects. It handles null input
+     * by falling back to the system default locale.
+     * </p>
+     * <p>
+     * The method accepts standard locale tags such as:
+     * <ul>
+     *   <li>"en-US" (English, United States)</li>
+     *   <li>"fr-FR" (French, France)</li>
+     *   <li>"en" (English, no specific region)</li>
+     *   <li>"zh-Hans-CN" (Chinese, Simplified script, China)</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Unlike {@link #parseZoneInfo(String)}, this method does not catch parsing
+     * exceptions, as {@link Locale#forLanguageTag(String)} handles malformed tags
+     * gracefully by returning a best-effort locale or the root locale.
+     * </p>
+     *
+     * @param locale the locale identifier string (BCP 47 language tag), may be {@code null}
+     * @return a {@link Locale} parsed from the input, or the system default if
+     *         the input is null
+     * @see Locale#forLanguageTag(String) The underlying parsing method
+     * @see Locale#getDefault() The fallback used for null input
+     */
+    static Locale parseLocale(@Nullable String locale) {
         if (locale == null) {
             return Locale.getDefault();
         }

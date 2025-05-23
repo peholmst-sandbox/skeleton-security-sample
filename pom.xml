@@ -14,6 +14,7 @@
         <java.version>21</java.version>
         <vaadin.version>24.8.0.alpha7</vaadin.version>
         <archunit.version>1.4.1</archunit.version>
+        <keycloak.version>26.0.5</keycloak.version>
     </properties>
 
     <parent>
@@ -75,6 +76,13 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Keycloak -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>${keycloak.version}</version>
         </dependency>
 
         <!-- Additional Spring Dependencies -->
