@@ -51,4 +51,44 @@ record DevUserInfo(
         requireNonNull(zoneId);
         requireNonNull(locale);
     }
+
+    @Override
+    public UserId getUserId() {
+        return userId;
+    }
+
+    @Override
+    public String getPreferredUsername() {
+        return preferredUsername;
+    }
+
+    @Override
+    public String getFullName() {
+        return fullName;
+    }
+
+    @Override
+    public @Nullable String getProfileUrl() {
+        return profileUrl;
+    }
+
+    @Override
+    public @Nullable String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    @Override
+    public @Nullable String getEmail() {
+        return email;
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        return zoneId;
+    }
+
+    @Override
+    public Locale getLocale() {
+        return locale;
+    }
 }

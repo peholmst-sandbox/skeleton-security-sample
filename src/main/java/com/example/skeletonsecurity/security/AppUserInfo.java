@@ -33,13 +33,13 @@ public interface AppUserInfo {
      *
      * @return the unique user identifier (never {@code null})
      */
-    UserId userId();
+    UserId getUserId();
 
     /**
      * Returns the user's preferred username for display and identification purposes.
      * <p>
      * This username is intended for human-readable display in user interfaces and may
-     * be different from the unique {@link #userId()}. Unlike the user ID, the preferred
+     * be different from the unique {@link #getUserId()}. Unlike the user ID, the preferred
      * username is typically chosen by the user and may be more meaningful to them and
      * other users of the application.
      * </p>
@@ -47,7 +47,7 @@ public interface AppUserInfo {
      * <strong>Important:</strong> The preferred username can change over time as users
      * update their profiles. It should <strong>not</strong> be used as a permanent identifier
      * for users in database relationships, audit logs, or any other persistent storage.
-     * Use {@link #userId()} for permanent user identification. The preferred username
+     * Use {@link #getUserId()} for permanent user identification. The preferred username
      * should only be used for identification when entered by a human user (e.g., in
      * search forms or user lookup interfaces).
      * </p>
@@ -57,9 +57,9 @@ public interface AppUserInfo {
      * </p>
      *
      * @return the user's preferred username (never {@code null})
-     * @see #userId() For permanent, immutable user identification
+     * @see #getUserId() For permanent, immutable user identification
      */
-    String preferredUsername();
+    String getPreferredUsername();
 
     /**
      * Returns the user's full display name.
@@ -70,7 +70,7 @@ public interface AppUserInfo {
      *
      * @return the user's full name (never {@code null})
      */
-    String fullName();
+    String getFullName();
 
     /**
      * Returns a URL to the user's profile page in the application or external system.
@@ -81,7 +81,7 @@ public interface AppUserInfo {
      *
      * @return URL to the user's profile, or {@code null} if not available
      */
-    default @Nullable String profileUrl() {
+    default @Nullable String getProfileUrl() {
         return null;
     }
 
@@ -94,7 +94,7 @@ public interface AppUserInfo {
      *
      * @return URL to the user's picture, or {@code null} if not available
      */
-    default @Nullable String pictureUrl() {
+    default @Nullable String getPictureUrl() {
         return null;
     }
 
@@ -107,7 +107,7 @@ public interface AppUserInfo {
      *
      * @return the user's email address, or {@code null} if not available
      */
-    default @Nullable String email() {
+    default @Nullable String getEmail() {
         return null;
     }
 
@@ -121,7 +121,7 @@ public interface AppUserInfo {
      *
      * @return the user's time zone (never {@code null})
      */
-    default ZoneId zoneId() {
+    default ZoneId getZoneId() {
         return ZoneId.systemDefault();
     }
 
@@ -135,7 +135,7 @@ public interface AppUserInfo {
      *
      * @return the user's locale (never {@code null})
      */
-    default Locale locale() {
+    default Locale getLocale() {
         return Locale.getDefault();
     }
 }

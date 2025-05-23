@@ -33,7 +33,7 @@ public class DevLoginView extends Main implements BeforeEnterObserver {
         login.setI18n(login18n);
 
         var userList = new UnorderedList();
-        SampleUsers.ALL_USERS.forEach(user -> userList.add(new ListItem(user.getAppUser().preferredUsername())));
+        SampleUsers.ALL_USERS.forEach(user -> userList.add(new ListItem(user.getAppUser().getPreferredUsername())));
 
         // Configure the view
         setSizeFull();

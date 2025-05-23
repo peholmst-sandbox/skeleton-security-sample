@@ -49,42 +49,42 @@ final class OidcUserAdapter implements OidcUser, AppUserPrincipal {
             private final Locale locale = parseLocale(oidcUser.getLocale());
 
             @Override
-            public UserId userId() {
+            public UserId getUserId() {
                 return userId;
             }
 
             @Override
-            public String preferredUsername() {
+            public String getPreferredUsername() {
                 return preferredUsername;
             }
 
             @Override
-            public String fullName() {
+            public String getFullName() {
                 return fullName;
             }
 
             @Override
-            public @Nullable String profileUrl() {
+            public @Nullable String getProfileUrl() {
                 return oidcUser.getProfile();
             }
 
             @Override
-            public @Nullable String pictureUrl() {
+            public @Nullable String getPictureUrl() {
                 return oidcUser.getPicture();
             }
 
             @Override
-            public @Nullable String email() {
+            public @Nullable String getEmail() {
                 return oidcUser.getEmail();
             }
 
             @Override
-            public ZoneId zoneId() {
+            public ZoneId getZoneId() {
                 return zoneId;
             }
 
             @Override
-            public Locale locale() {
+            public Locale getLocale() {
                 return locale;
             }
         };

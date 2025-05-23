@@ -40,6 +40,6 @@ public interface AppUserPrincipal extends Principal {
      */
     @Override
     default String getName() {
-        return getAppUser().userId().toString();
+        return getAppUser().getUserId().toString();
     }
 }

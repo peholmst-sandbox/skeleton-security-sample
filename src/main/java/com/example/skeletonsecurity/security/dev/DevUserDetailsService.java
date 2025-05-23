@@ -69,8 +69,8 @@ final class DevUserDetailsService implements UserDetailsService, AppUserInfoLook
         userByUsername = new HashMap<>();
         userInfoById = new HashMap<>();
         users.forEach(user -> {
-            userByUsername.put(user.getAppUser().preferredUsername(), user);
-            userInfoById.put(user.getAppUser().userId(), user.getAppUser());
+            userByUsername.put(user.getAppUser().getPreferredUsername(), user);
+            userInfoById.put(user.getAppUser().getUserId(), user.getAppUser());
         });
     }
 

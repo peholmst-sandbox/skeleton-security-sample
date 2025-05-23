@@ -67,7 +67,7 @@ public class TaskListView extends Main {
         taskGrid.addColumn(task -> Optional.ofNullable(task.getDueDate()).map(dateFormatter::format).orElse("Never"))
                 .setHeader("Due Date");
         taskGrid.addColumn(task -> dateTimeFormatter.format(task.getCreatedDate())).setHeader("Creation Date");
-        taskGrid.addColumn(task -> Optional.ofNullable(task.getCreatedBy()).flatMap(appUserInfoLookup::findUserInfo).map(AppUserInfo::fullName).orElse("Unknown")).setHeader("Created By");
+        taskGrid.addColumn(task -> Optional.ofNullable(task.getCreatedBy()).flatMap(appUserInfoLookup::findUserInfo).map(AppUserInfo::getFullName).orElse("Unknown")).setHeader("Created By");
         taskGrid.setSizeFull();
 
         setSizeFull();

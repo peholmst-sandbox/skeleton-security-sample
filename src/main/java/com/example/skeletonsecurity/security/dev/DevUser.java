@@ -77,20 +77,20 @@ final class DevUser implements AppUserPrincipal, UserDetails {
 
     @Override
     public String getUsername() {
-        return appUser.preferredUsername();
+        return appUser.getPreferredUsername();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DevUser user) {
-            return this.appUser.userId().equals(user.appUser.userId());
+            return this.appUser.getUserId().equals(user.appUser.getUserId());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return this.appUser.userId().hashCode();
+        return this.appUser.getUserId().hashCode();
     }
 
     /**

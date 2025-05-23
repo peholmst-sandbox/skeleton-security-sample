@@ -67,7 +67,7 @@ public final class MainLayout extends AppLayout {
     private Component createUserMenu() {
         var user = CurrentUser.require();
 
-        var avatar = new Avatar(user.fullName(), user.pictureUrl());
+        var avatar = new Avatar(user.getFullName(), user.getPictureUrl());
         avatar.addThemeVariants(AvatarVariant.LUMO_XSMALL);
         avatar.addClassNames(Margin.Right.SMALL);
         avatar.setColorIndex(5);
@@ -77,9 +77,9 @@ public final class MainLayout extends AppLayout {
         userMenu.addClassNames(Margin.MEDIUM);
 
         var userMenuItem = userMenu.addItem(avatar);
-        userMenuItem.add(user.fullName());
-        if (user.profileUrl() != null) {
-            userMenuItem.getSubMenu().addItem(new Anchor(user.profileUrl(), "View Profile", AnchorTarget.BLANK));
+        userMenuItem.add(user.getFullName());
+        if (user.getProfileUrl() != null) {
+            userMenuItem.getSubMenu().addItem(new Anchor(user.getProfileUrl(), "View Profile", AnchorTarget.BLANK));
         }
         // TODO Add additional items to the user menu if needed
         userMenuItem.getSubMenu().addItem("Logout", event -> authenticationContext.logout());

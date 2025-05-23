@@ -108,7 +108,7 @@ class CommonSecurityConfig {
      */
     @Bean
     public AuditorAware<UserId> auditorAware() {
-        return () -> CurrentUser.get().map(AppUserInfo::userId);
+        return () -> CurrentUser.get().map(AppUserInfo::getUserId);
     }
 
     /**
