@@ -26,14 +26,16 @@ import static java.util.Objects.requireNonNull;
  * </p>
  * <p>
  * DevUser instances should only be used in development and test environments, not in production.
- * They are typically created through the {@link #builder(String, String)} method and customized
+ * They are typically created through the {@link #builder()} method and customized
  * using the fluent {@link DevUserBuilder} API.
  * </p>
  * <p>
  * Example usage:
  * <pre>
  * {@code
- * DevUser adminUser = DevUser.builder("admin", "Admin User")
+ * DevUser adminUser = DevUser.builder()
+ *     .preferredUsername("admin")
+ *     .fullName("Admin User")
  *     .password("securePassword")
  *     .email("admin@example.com")
  *     .roles("ADMIN")
@@ -95,16 +97,14 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * Creates a new builder for constructing a development user.
      * <p>
      * The builder provides a fluent API for setting user properties.
-     * At minimum, a preferred username, full name, and password must be provided
+     * At minimum, a preferred username and password must be provided
      * before calling {@link DevUserBuilder#build()}.
      * </p>
      *
-     * @param preferredUsername the user's preferred username (never {@code null})
-     * @param fullName          the user's full name (never {@code null})
      * @return a new builder for creating a development user
      */
-    public static DevUserBuilder builder(String preferredUsername, String fullName) {
-        return new DevUserBuilder(preferredUsername, fullName);
+    public static DevUserBuilder builder() {
+        return new DevUserBuilder();
     }
 
     /**
@@ -116,8 +116,7 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * <p>
      * Required properties that must be set before calling {@link #build()}:
      * <ul>
-     *   <li>Preferred username (set in constructor)</li>
-     *   <li>Full name (set in constructor)</li>
+     *   <li>Preferred username (set via {@link #preferredUsername(String)})</li>
      *   <li>Password (set via {@link #password(String)})</li>
      * </ul>
      * </p>
@@ -125,6 +124,7 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * Optional properties with default values:
      * <ul>
      *   <li>User ID (random UUID)</li>
+     *   <li>Full name (preferred username)</li>
      *   <li>Zone ID (system default)</li>
      *   <li>Locale (system default)</li>
      *   <li>Authorities (empty list)</li>
@@ -134,7 +134,9 @@ final class DevUser implements AppUserPrincipal, UserDetails {
      * Example usage:
      * <pre>
      * {@code
-     * DevUser user = DevUser.builder("john.doe", "John Doe")
+     * DevUser user = DevUser.builder()
+     *     .preferredUsername("john.doe")
+     *     .fullName("John Doe")
      *     .password("password123")
      *     .email("john@example.com")
      *     .roles("USER", "ADMIN")
@@ -149,8 +151,8 @@ final class DevUser implements AppUserPrincipal, UserDetails {
         private static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
         private @Nullable UserId userId;
-        private final String preferredUsername;
-        private final String fullName;
+        private @Nullable String preferredUsername;
+        private @Nullable String fullName;
         private @Nullable String email;
         private @Nullable String profileUrl;
         private @Nullable String pictureUrl;
@@ -158,11 +160,6 @@ final class DevUser implements AppUserPrincipal, UserDetails {
         private Locale locale = Locale.getDefault();
         private List<GrantedAuthority> authorities = Collections.emptyList();
         private @Nullable String password;
-
-        DevUserBuilder(String preferredUsername, String fullName) {
-            this.preferredUsername = requireNonNull(preferredUsername);
-            this.fullName = requireNonNull(fullName);
-        }
 
         /**
          * Sets the user's ID. If left unset, a random UUID is generated when the user is built.
@@ -172,6 +169,28 @@ final class DevUser implements AppUserPrincipal, UserDetails {
          */
         public DevUserBuilder userId(UserId userId) {
             this.userId = requireNonNull(userId);
+            return this;
+        }
+
+        /**
+         * Sets the user's preferred username.
+         *
+         * @param preferredUsername the preferred username (never {@code null})
+         * @return this builder for method chaining
+         */
+        public DevUserBuilder preferredUsername(String preferredUsername) {
+            this.preferredUsername = requireNonNull(preferredUsername);
+            return this;
+        }
+
+        /**
+         * Sets the user's full name. If left unset, the preferred username will be used.
+         *
+         * @param fullName the full name
+         * @return this builder for method chaining
+         */
+        public DevUserBuilder fullName(@Nullable String fullName) {
+            this.fullName = fullName;
             return this;
         }
 
@@ -286,15 +305,21 @@ final class DevUser implements AppUserPrincipal, UserDetails {
          * Builds the development user with the properties set on this builder.
          *
          * @return a new development user
-         * @throws IllegalStateException if the password has not been set
+         * @throws IllegalStateException if the preferred username or password has not been set
          */
         public DevUser build() {
+            if (preferredUsername == null) {
+                throw new IllegalStateException("Preferred username must be set before building the user");
+            }
             if (password == null) {
                 throw new IllegalStateException("Password must be set before building the user");
             }
             var encodedPassword = PASSWORD_ENCODER.encode(password);
             if (userId == null) {
                 userId = UserId.of(UUID.randomUUID().toString());
+            }
+            if (fullName == null) {
+                fullName = preferredUsername;
             }
             return new DevUser(
                     new DevUserInfo(userId,

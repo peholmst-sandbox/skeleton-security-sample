@@ -92,7 +92,9 @@ public final class SampleUsers {
      * and tests that require administrative access.
      * </p>
      */
-    static DevUser ADMIN = DevUser.builder(ADMIN_USERNAME, "Alice Administrator")
+    static DevUser ADMIN = DevUser.builder()
+            .preferredUsername(ADMIN_USERNAME)
+            .fullName("Alice Administrator")
             .userId(ADMIN_ID)
             .password(SAMPLE_PASSWORD)
             .email("alice@example.com")
@@ -124,7 +126,9 @@ public final class SampleUsers {
      * and tests that require standard user access.
      * </p>
      */
-    static final DevUser USER = DevUser.builder(USER_USERNAME, "Ursula User")
+    static final DevUser USER = DevUser.builder()
+            .preferredUsername(USER_USERNAME)
+            .fullName("Ursula User")
             .userId(USER_ID)
             .password(SAMPLE_PASSWORD)
             .email("ursula@example.com")
