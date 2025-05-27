@@ -2,6 +2,7 @@ package com.example.skeletonsecurity;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -78,6 +79,7 @@ public class Application implements AppShellConfigurator {
                 (defaultProfiles.length > 0 && !Arrays.equals(defaultProfiles, new String[]{"default"}));
 
         if (!hasExplicitProfiles && isVaadinInDevelopmentMode()) {
+            LoggerFactory.getLogger(Application.class).warn("Automatically enabling the DEVELOPMENT profile");
             environment.setActiveProfiles("dev");
         }
     }
