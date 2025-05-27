@@ -1,5 +1,6 @@
 package com.example.skeletonsecurity.security.dev;
 
+import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,5 +62,14 @@ class DevSecurityConfig {
     @Bean
     UserDetailsService userDetailsService() {
         return new DevUserDetailsService(SampleUsers.ALL_USERS);
+    }
+
+    @Bean
+    VaadinServiceInitListener productionModeGuard() {
+        return (serviceInitEvent) -> {
+            if (serviceInitEvent.getSource().getDeploymentConfiguration().isProductionMode()) {
+                throw new IllegalStateException("DevSecurityConfig should not be used in production mode");
+            }
+        };
     }
 }
