@@ -68,7 +68,7 @@ class DevSecurityConfig {
     VaadinServiceInitListener productionModeGuard() {
         return (serviceInitEvent) -> {
             if (serviceInitEvent.getSource().getDeploymentConfiguration().isProductionMode()) {
-                throw new IllegalStateException("DevSecurityConfig should not be used in production mode");
+                throw new IllegalStateException("Development profile is active but Vaadin is running in production mode. This indicates a configuration error - development profile should not be used in production.");
             }
         };
     }
